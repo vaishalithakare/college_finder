@@ -52,4 +52,20 @@ def verify_link(request):
 
 
 def signin_page(request):
-    return render(request,"registration.html")
+    if request.method =="POST":
+        if CollegeUserBasicInfo.objects.filter(email=request.POST['email']).exists() is True:
+            data= CollegeUserBasicInfo.objects.get(email=request.POST['email'])
+            if check_password(request.POST['password'],data.password):
+                if data.is_active== 1:
+                    if data.role.role_name == "colleger":
+                        return redirect("/index.html/")
+                else:
+                 if data.verify_link!="":
+                    return render(request,"front_master_page.html",{'verify_email':True})
+                 else:
+                    return render(request,"front_master_page.html",{'permision denied':True})
+            else:
+                return render(request,"front_master_page.html",{'invalid_password':True})
+        else:
+            return render(request,"front_master_page.html",{'invalid_email':True})
+    return render(request,"front_master_page.html")
